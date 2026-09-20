@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans antialiased;
+    font-family: 'Mukta', 'Roboto', sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Yatra One', cursive;
+    font-weight: 400;
+  }
+}
+
+.haatpata-bg {
+  background: radial-gradient(circle at 1px 1px, #D9C9A3 0.6px, transparent 1px) 0 0/28px 28px, #F2E9D8;
+  @apply text-gray-800;
+}
+
+/* Custom scrollbar for better Android feel on desktop mock */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
