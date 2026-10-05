@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { Plus, Trash2, ArrowRight, ListChecks } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { getCategories, getProducts } from '../services/api';
 
 export default function ShoppingList() {
   const navigate = useNavigate();
@@ -16,12 +16,12 @@ export default function ShoppingList() {
   const [list, setList] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:4000/api/categories').then(res => setCategories(res.data));
+    getCategories().then(data => setCategories(data));
   }, []);
 
   useEffect(() => {
     if (selectedCat) {
-      axios.get(`http://localhost:4000/api/products?categoryId=${selectedCat}`).then(res => setProducts(res.data));
+      getProducts(selectedCat).then(data => setProducts(data));
       setSelectedProd('');
     } else {
       setProducts([]);

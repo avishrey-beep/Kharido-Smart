@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { MessageCircle, X, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
+import { getChatReply } from '../services/api';
 
 export default function ChatbotFab() {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,9 +19,8 @@ export default function ChatbotFab() {
     setInput('');
 
     try {
-      // Assuming backend runs on port 4000
-      const res = await axios.post('http://localhost:4000/api/chat', { message: userMsg });
-      setMessages(prev => [...prev, { role: 'bot', text: res.data.reply }]);
+      const reply = await getChatReply(userMsg);
+      setMessages(prev => [...prev, { role: 'bot', text: reply }]);
     } catch (err) {
       setMessages(prev => [...prev, { role: 'bot', text: 'Maaf kijiye, abhi network ki samasya hai.' }]);
     }
