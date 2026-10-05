@@ -133,7 +133,7 @@ function Login() {
     e.preventDefault();
     if (phone && password) {
       localStorage.setItem('kharido_user', JSON.stringify({ phone, village: isRegister ? village : 'Sadar Village' }));
-      window.location.href = '/';
+      navigate('/');
     } else {
       alert("Kripya apna details darj karein.");
     }

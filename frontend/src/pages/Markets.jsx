@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { MapPin, AlertCircle, TrendingDown, Store, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { compareMarkets } from '../services/api';
 
 export default function Markets() {
   const [markets, setMarkets] = useState([]);
@@ -23,9 +23,9 @@ export default function Markets() {
       return;
     }
 
-    axios.post('http://localhost:4000/api/compare', { shoppingList })
-      .then(res => {
-        setMarkets(res.data.markets);
+    compareMarkets(shoppingList)
+      .then(data => {
+        setMarkets(data);
         setLoading(false);
       })
       .catch(err => {

@@ -5,11 +5,15 @@
 ## Overview
 KharidoSmart is an AI-powered rural market discovery and fair-price assistant designed for people in villages, small towns, and semi-urban areas of India. It features an Android-first PWA design, a smart fair-price comparison engine, and a bilingual AI Chatbot named **Bazaar Saathi**.
 
+## Live Demo
+🌐 **GitHub Pages:** [https://avishrey-beep.github.io/Kharido-Smart/](https://avishrey-beep.github.io/Kharido-Smart/)
+
 ## Features MVP
 1. **Smart Shopping List:** Add items via cascading dropdowns.
-2. **Market Comparison:** Compare total trip cost (goods + travel) across nearby mandis and retail shops.
+2. **Market Comparison:** Compare total trip cost (goods + travel) across 55+ nearby mandis and retail shops.
 3. **Bazaar Saathi:** Ask questions in Hindi/English about markets, prices, and opening hours.
-4. **Rural UI:** Warm theme (Cream, Leaf Green, Terracotta) optimized for Android screens.
+4. **Rural UI:** Warm theme (Cream, Leaf Green, Terracotta) with beautiful Indian marketplace illustrations and responsive full-screen desktop/mobile support.
+5. **Standalone & Cloud Ready:** Features an embedded client-side market database engine for 100% offline & static GitHub Pages demo support, plus Express REST API support when running with backend.
 
 ## How to Run
 
