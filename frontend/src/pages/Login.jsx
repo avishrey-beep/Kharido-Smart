@@ -127,16 +127,35 @@ function Login() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [village, setVillage] = useState('');
+  const [phoneError, setPhoneError] = useState('');
   const navigate = useNavigate();
+
+  const handlePhoneChange = (e) => {
+    const val = e.target.value.replace(/\D/g, ''); // Allow only numbers
+    setPhone(val);
+    if (val.length > 10) {
+      setPhoneError("Fault: You have to write 10 digits only");
+    } else {
+      setPhoneError("");
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (phone && password) {
-      localStorage.setItem('kharido_user', JSON.stringify({ phone, village: isRegister ? village : 'Sadar Village' }));
-      navigate('/');
-    } else {
-      alert("Kripya apna details darj karein.");
+    if (!phone) {
+      setPhoneError("Fault: You have to write 10 digits only");
+      return;
     }
+    if (phone.length !== 10) {
+      setPhoneError("Fault: You have to write 10 digits only");
+      return;
+    }
+    if (!password) {
+      alert("Kripya apna password darj karein.");
+      return;
+    }
+    localStorage.setItem('kharido_user', JSON.stringify({ phone, village: isRegister ? village : 'Sadar Village' }));
+    navigate('/');
   };
 
   return (
@@ -208,14 +227,31 @@ function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1.5">
-              <label className="text-[#5B4E3E] text-xs font-bold ml-1 uppercase tracking-wider">Phone Number</label>
+              <div className="flex justify-between items-center">
+                <label className="text-[#5B4E3E] text-xs font-bold ml-1 uppercase tracking-wider">Phone Number</label>
+                {phone.length > 0 && (
+                  <span className={`text-[11px] font-bold ${phone.length > 10 ? 'text-red-600' : phone.length === 10 ? 'text-green-700' : 'text-[#5B4E3E]'}`}>
+                    {phone.length}/10 {phone.length > 10 && '⚠️ Exceeded!'}
+                  </span>
+                )}
+              </div>
               <input
                 type="tel"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={handlePhoneChange}
                 placeholder="e.g. 9876543210"
-                className="w-full px-4 py-3.5 bg-transparent border-2 border-[#D9C9A3] rounded-lg focus:outline-none focus:border-[#A24A32] text-gray-800 font-bold placeholder-[#C9BBA0] transition-colors text-lg"
+                className={`w-full px-4 py-3.5 bg-transparent border-2 rounded-lg focus:outline-none text-gray-800 font-bold placeholder-[#C9BBA0] transition-colors text-lg ${
+                  phoneError || phone.length > 10
+                    ? 'border-red-500 bg-red-50/50 focus:border-red-600'
+                    : 'border-[#D9C9A3] focus:border-[#A24A32]'
+                }`}
               />
+              {phoneError && (
+                <p className="text-red-600 text-xs font-black mt-1 flex items-center gap-1.5 bg-red-100/90 p-2 rounded-md border border-red-300 shadow-sm animate-pulse">
+                  <span>⚠️</span>
+                  <span>{phoneError}</span>
+                </p>
+              )}
             </div>
             
             <div className="space-y-1.5">
