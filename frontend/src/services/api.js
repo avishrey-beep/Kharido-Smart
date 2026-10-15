@@ -220,6 +220,16 @@ export async function compareMarkets(shoppingList) {
   return computeMarketComparison(shoppingList);
 }
 
+export async function getAllMarkets() {
+  try {
+    const res = await axios.get(`${API_BASE_URL}/markets`, { timeout: 1500 });
+    if (res.data && res.data.length > 0) return res.data;
+  } catch (err) {
+    // Fall back to local embedded database
+  }
+  return localDb.markets;
+}
+
 export async function getChatReply(message) {
   try {
     const res = await axios.post(`${API_BASE_URL}/chat`, { message }, { timeout: 1500 });

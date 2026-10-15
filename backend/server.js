@@ -137,6 +137,11 @@ app.get('/api/products', (req, res) => {
   }
 });
 
+// API: Get All Markets
+app.get('/api/markets', (req, res) => {
+  res.json(db.markets);
+});
+
 // API: Compare & Find Markets (Smart Fair-Price Engine)
 app.post('/api/compare', (req, res) => {
   const { shoppingList } = req.body; // Array of { productId, quantity }
