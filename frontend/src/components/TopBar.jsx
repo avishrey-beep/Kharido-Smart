@@ -29,7 +29,7 @@ export default function TopBar() {
   };
 
   return (
-    <header className="absolute top-0 left-0 right-0 h-16 bg-[#FBF6EA] border-b-[3px] border-[#2B2118] flex items-center justify-between px-4 z-10 shadow-[0_4px_0_rgba(43,33,24,0.08)]">
+    <header className="fixed top-0 left-0 right-0 h-16 bg-[#FBF6EA] border-b-[3px] border-[#2B2118] flex items-center justify-between px-4 z-50 shadow-[0_4px_0_rgba(43,33,24,0.08)]">
       {/* Brand & Location */}
       <div className="flex flex-col">
         <h1 className="text-2xl text-[#A24A32] flex items-center gap-1 leading-tight" style={{ fontFamily: "'Yatra One', cursive" }}>

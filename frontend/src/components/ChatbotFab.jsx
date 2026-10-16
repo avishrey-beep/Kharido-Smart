@@ -31,7 +31,7 @@ export default function ChatbotFab() {
       {/* FAB Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="absolute bottom-20 right-4 w-14 h-14 bg-yellow-500 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-yellow-600 transition-colors z-20"
+        className="fixed bottom-20 right-4 w-14 h-14 bg-yellow-500 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-yellow-600 transition-colors z-40"
       >
         <MessageCircle size={28} />
       </button>
@@ -43,7 +43,7 @@ export default function ChatbotFab() {
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
-            className="absolute bottom-20 right-4 left-4 bg-white rounded-2xl shadow-2xl overflow-hidden z-30 flex flex-col"
+            className="fixed bottom-20 right-4 left-4 sm:left-auto sm:w-96 bg-white rounded-2xl shadow-2xl overflow-hidden z-50 flex flex-col"
             style={{ height: '400px', maxHeight: '60vh' }}
           >
             {/* Header */}

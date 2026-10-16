@@ -189,7 +189,7 @@ export default function ShoppingList() {
   const activeNames = activeProduct ? splitBilingualName(activeProduct.name) : { english: '', hindi: '' };
 
   return (
-    <div className="w-full max-w-[1400px] mx-auto p-4 sm:p-6 lg:p-8 pb-28 flex flex-col gap-6">
+    <div className="w-full max-w-[1400px] mx-auto p-4 sm:p-6 lg:p-8 pb-12 flex flex-col gap-6">
       {/* Top Banner & Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b-2 border-[#2B2118]/20">
         <div>
@@ -231,7 +231,7 @@ export default function ShoppingList() {
         {/* ============================================================== */}
         {/* LEFT COLUMN: Add Item Form, Filters, & Search (5 / 12 width)   */}
         {/* ============================================================== */}
-        <div className="lg:col-span-5 flex flex-col gap-5 lg:sticky lg:top-4 z-20">
+        <div className="lg:col-span-5 flex flex-col gap-5 relative z-10">
           
           {/* Quick Add Staples */}
           <div className="bg-[#FBF6EA] border-[3px] border-[#2B2118] p-4 rounded-2xl shadow-[4px_4px_0_#2B2118]">
@@ -343,7 +343,7 @@ export default function ShoppingList() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute top-full left-0 right-0 mt-2 bg-white border-[3px] border-[#2B2118] rounded-xl shadow-[6px_6px_0px_#2B2118] z-50 overflow-hidden flex flex-col"
+                    className="absolute top-full left-0 right-0 mt-2 bg-white border-[3px] border-[#2B2118] rounded-xl shadow-[6px_6px_0px_#2B2118] z-30 overflow-hidden flex flex-col"
                   >
                     {/* Search Input inside Dropdown */}
                     <div className="p-2.5 bg-[#FBF6EA] border-b-2 border-[#2B2118] flex items-center gap-2">

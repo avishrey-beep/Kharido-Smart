@@ -24,7 +24,7 @@ function AppLayout() {
     <div className="flex flex-col h-full w-full relative">
       <TopBar />
       
-      <main className="flex-1 overflow-y-auto pb-20 pt-16 h-full">
+      <main className="flex-1 overflow-y-auto pt-20 pb-28 h-full relative z-0">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/shopping" element={<ShoppingList />} />

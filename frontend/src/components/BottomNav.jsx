@@ -10,7 +10,7 @@ export default function BottomNav() {
   ];
 
   return (
-    <nav className="absolute bottom-0 left-0 right-0 h-16 bg-[#FBF6EA] border-t-[3px] border-[#2B2118] flex justify-around items-center z-10 pb-safe shadow-[0_-4px_0_rgba(43,33,24,0.05)]">
+    <nav className="fixed bottom-0 left-0 right-0 h-16 bg-[#FBF6EA] border-t-[3px] border-[#2B2118] flex justify-around items-center z-50 pb-safe shadow-[0_-4px_0_rgba(43,33,24,0.08)]">
       {navItems.map((item) => (
         <NavLink
           key={item.path}
