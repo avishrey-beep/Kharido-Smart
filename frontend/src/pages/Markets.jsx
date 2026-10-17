@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, AlertCircle, Store, ShoppingBag, ArrowRight, Compass, Sparkles, Search, Filter, X } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { MapPin, AlertCircle, Store, ShoppingBag, ArrowRight, Compass, Sparkles, Search, Filter, X, FileText } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { compareMarkets, getAllMarkets } from '../services/api';
 
 export default function Markets() {
@@ -14,6 +14,7 @@ export default function Markets() {
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('ALL');
+  const [selectedReceipt, setSelectedReceipt] = useState(null);
 
   useEffect(() => {
     let shoppingList = [];
@@ -312,28 +313,133 @@ export default function Markets() {
                   </div>
                 </div>
 
-                {/* Bottom Actions */}
-                <div className="flex justify-between items-end pt-2 border-t border-[#D9C9A3]">
-                  <div>
-                    <div className="text-[11px] text-[#5B4E3E] uppercase font-bold tracking-wider">
-                      {isComparisonMode ? 'Total Trip Cost' : 'Est. Travel Cost'}
+                  {/* Bottom Actions */}
+                  <div className="flex justify-between items-end pt-2 border-t border-[#D9C9A3]">
+                    <div>
+                      <div className="text-[11px] text-[#5B4E3E] uppercase font-bold tracking-wider">
+                        {isComparisonMode ? 'Total Trip Cost' : 'Est. Travel Cost'}
+                      </div>
+                      <div className="text-2xl font-black text-[#A24A32] leading-none mt-0.5">
+                        ₹{isComparisonMode ? market.estimatedTotalTripCost : market.travelCost}
+                      </div>
                     </div>
-                    <div className="text-2xl font-black text-[#A24A32] leading-none mt-0.5">
-                      ₹{isComparisonMode ? market.estimatedTotalTripCost : market.travelCost}
+                    <div className="flex items-center gap-2">
+                      {isComparisonMode && market.itemDetails && (
+                        <button 
+                          onClick={() => setSelectedReceipt(market)}
+                          className="bg-[#EADFC7] hover:bg-[#ded1b5] text-[#2B2118] text-xs font-black px-3 py-2.5 rounded-xl flex items-center gap-1.5 border-2 border-[#2B2118] shadow-[2px_2px_0_#2B2118] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
+                          title="View detailed receipt breakdown"
+                        >
+                          <FileText size={15} /> पर्ची
+                        </button>
+                      )}
+                      <button 
+                        onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(market.name)}`, '_blank')}
+                        className="bg-[#4B6142] hover:bg-[#3d5036] text-[#FBF6EA] text-xs font-black px-4 py-2.5 rounded-xl flex items-center gap-1.5 border-2 border-[#2B2118] shadow-[2px_2px_0_#2B2118] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
+                      >
+                        <Compass size={16} /> Navigate
+                      </button>
                     </div>
                   </div>
-                  <button 
-                    onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(market.name)}`, '_blank')}
-                    className="bg-[#4B6142] hover:bg-[#3d5036] text-[#FBF6EA] text-xs font-black px-4 py-2.5 rounded-xl flex items-center gap-1.5 border-2 border-[#2B2118] shadow-[2px_2px_0_#2B2118] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
-                  >
-                    <Compass size={16} /> Navigate
-                  </button>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
+
+      {/* Itemized Mandi Receipt Modal */}
+      <AnimatePresence>
+        {selectedReceipt && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-[#FBF6EA] border-[3px] border-[#2B2118] rounded-2xl shadow-[8px_8px_0_#2B2118] max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto"
+            >
+              <div className="flex justify-between items-start border-b-2 border-[#2B2118] pb-3 mb-4">
+                <div>
+                  <span className="text-[10px] font-black tracking-widest uppercase bg-[#E3A83B] text-[#2B2118] px-2 py-0.5 rounded border border-[#2B2118]">
+                    पक्की पर्ची • Mandi Estimation
+                  </span>
+                  <h3 className="font-black text-2xl text-[#2B2118] mt-1">{selectedReceipt.name}</h3>
+                  <p className="text-xs text-[#5B4E3E] font-bold">
+                    {selectedReceipt.distance} km • {selectedReceipt.type} • {selectedReceipt.schedule}
+                  </p>
                 </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      )}
+                <button
+                  onClick={() => setSelectedReceipt(null)}
+                  className="p-1 rounded-lg border-2 border-[#2B2118] bg-[#EADFC7] hover:bg-[#ded1b5] text-[#2B2118]"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Items Table */}
+              <div className="border-2 border-[#2B2118] rounded-xl overflow-hidden mb-4 bg-white">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#2B2118] text-[#FBF6EA] font-bold uppercase tracking-wider text-[10px]">
+                    <tr>
+                      <th className="p-2.5">Item (सामान)</th>
+                      <th className="p-2.5 text-center">Qty</th>
+                      <th className="p-2.5 text-right">Est. Cost</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#D9C9A3]">
+                    {selectedReceipt.itemDetails?.map((item, idx) => (
+                      <tr key={idx} className="hover:bg-[#FBF6EA]/60 font-medium text-[#2B2118]">
+                        <td className="p-2.5">{item.productName}</td>
+                        <td className="p-2.5 text-center font-bold text-[#5B4E3E]">
+                          {item.quantity} {item.unit}
+                        </td>
+                        <td className="p-2.5 text-right font-black">₹{item.itemTotal}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Summary Calculations */}
+              <div className="bg-[#EADFC7] p-3.5 rounded-xl border-2 border-[#2B2118] space-y-1.5 text-xs mb-4">
+                <div className="flex justify-between font-bold text-[#2B2118]">
+                  <span>सामान का कुल मूल्य (Goods Subtotal):</span>
+                  <span>₹{selectedReceipt.totalItemsCost}</span>
+                </div>
+                <div className="flex justify-between font-medium text-[#5B4E3E]">
+                  <span>यातायात / किराया (Est. Round-Trip Transit):</span>
+                  <span>₹{selectedReceipt.travelCost}</span>
+                </div>
+                <div className="border-t border-[#2B2118]/30 pt-1.5 flex justify-between font-black text-sm text-[#A24A32]">
+                  <span>अनुमानित कुल खर्च (Grand Total):</span>
+                  <span>₹{selectedReceipt.estimatedTotalTripCost}</span>
+                </div>
+              </div>
+
+              {/* Speciality note */}
+              <div className="bg-[#4B6142]/10 border border-[#4B6142] p-2.5 rounded-xl text-xs text-[#2B2118] mb-5">
+                <span className="font-bold text-[#4B6142]">मंडी खासियत (Speciality): </span>
+                {selectedReceipt.speciality}
+              </div>
+
+              {/* Footer CTA */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => window.print()}
+                  className="flex-1 bg-white hover:bg-gray-100 text-[#2B2118] text-xs font-black py-2.5 rounded-xl border-2 border-[#2B2118] shadow-[2px_2px_0_#2B2118] active:translate-x-[2px] active:translate-y-[2px]"
+                >
+                  🖨️ Print / Save (प्रिंट करें)
+                </button>
+                <button
+                  onClick={() => setSelectedReceipt(null)}
+                  className="flex-1 bg-[#2B2118] hover:bg-[#3d3126] text-[#FBF6EA] text-xs font-black py-2.5 rounded-xl border-2 border-[#2B2118] shadow-[2px_2px_0_#E3A83B] active:translate-x-[2px] active:translate-y-[2px]"
+                >
+                  Close (बंद करें)
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
