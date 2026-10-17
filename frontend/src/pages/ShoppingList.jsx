@@ -16,7 +16,9 @@ import {
   ShoppingBag, 
   RotateCcw,
   Store,
-  Check
+  Check,
+  Share2,
+  Copy
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getCategories, getProducts } from '../services/api';
@@ -175,6 +177,34 @@ export default function ShoppingList() {
   const handleCompare = () => {
     localStorage.setItem('kharido_list', JSON.stringify(list));
     navigate('/markets');
+  };
+
+  const [copied, setCopied] = useState(false);
+
+  const generateShareText = () => {
+    let text = `🛒 *KharidoSmart - Bazaar Shopping List*\n`;
+    text += `गांव: Sadar Village\n`;
+    text += `कुल सामान: ${list.length} items\n`;
+    text += `---------------------------------\n`;
+    list.forEach((item, idx) => {
+      text += `${idx + 1}. ${item.name} - ${item.quantity} ${item.unit}\n`;
+    });
+    text += `---------------------------------\n`;
+    text += `अनुमानित कुल लागत: ₹${totalEstimatedCost}\n`;
+    text += `मंडी भाव तुलना: https://avishrey-beep.github.io/Kharido-Smart/\n`;
+    return text;
+  };
+
+  const handleWhatsAppShare = () => {
+    const text = encodeURIComponent(generateShareText());
+    window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+  };
+
+  const handleCopyList = () => {
+    navigator.clipboard.writeText(generateShareText()).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    });
   };
 
   // Total estimated mandi cost
@@ -657,6 +687,35 @@ export default function ShoppingList() {
                   <span className="text-lg font-black text-[#A24A32]">
                     ₹{totalEstimatedCost}
                   </span>
+                </div>
+
+                {/* Share Actions */}
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={handleWhatsAppShare}
+                    className="bg-[#25D366] hover:bg-[#20ba59] text-white font-bold py-2.5 px-3 rounded-xl border-2 border-[#2B2118] shadow-[2px_2px_0_#2B2118] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all flex items-center justify-center gap-1.5 text-xs sm:text-sm"
+                  >
+                    <Share2 size={16} /> WhatsApp
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleCopyList}
+                    className="bg-white hover:bg-gray-100 text-[#2B2118] font-bold py-2.5 px-3 rounded-xl border-2 border-[#2B2118] shadow-[2px_2px_0_#2B2118] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all flex items-center justify-center gap-1.5 text-xs sm:text-sm"
+                  >
+                    {copied ? (
+                      <>
+                        <Check size={16} className="text-green-600" />
+                        <span className="text-green-700 font-black">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={16} />
+                        <span>Copy List</span>
+                      </>
+                    )}
+                  </button>
                 </div>
 
                 <button 
