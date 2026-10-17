@@ -1,5 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { 
+  Eye, 
+  EyeOff, 
+  CheckCircle2, 
+  AlertTriangle, 
+  Store, 
+  MapPin, 
+  Sparkles, 
+  UserPlus, 
+  LogIn, 
+  ShieldCheck 
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function Particles() {
   return (
@@ -48,7 +61,7 @@ function Particles() {
 
 function Bunting() {
   return (
-    <div className="absolute top-0 left-0 right-0 h-12 overflow-hidden z-10 pointer-events-none opacity-80">
+    <div className="absolute top-16 left-0 right-0 h-10 overflow-hidden z-10 pointer-events-none opacity-80">
       <div className="absolute top-2 left-[-10px] right-[-10px] h-[2px] bg-[#D9C9A3]" style={{ borderRadius: '50% / 100% 100% 0 0', transform: 'scaleY(-1)' }}></div>
       <div className="flex justify-around absolute top-2 w-full px-4">
         {[...Array(8)].map((_, i) => {
@@ -122,16 +135,32 @@ function StallSVG() {
   );
 }
 
-function Login() {
-  const [isRegister, setIsRegister] = useState(false);
+const POPULAR_VILLAGES = [
+  'Sadar Village', 
+  'Kalyanpur', 
+  'Mangalwar Haat', 
+  'Rampur'
+];
+
+export default function Login() {
+  // Requirement: Default to Create Account first
+  const [isRegister, setIsRegister] = useState(true);
+  
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [village, setVillage] = useState('');
+  const [rewritePassword, setRewritePassword] = useState('');
+  const [village, setVillage] = useState('Sadar Village');
+  
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRewritePassword, setShowRewritePassword] = useState(false);
+  
   const [phoneError, setPhoneError] = useState('');
+  const [formError, setFormError] = useState('');
+  
   const navigate = useNavigate();
 
   const handlePhoneChange = (e) => {
-    const val = e.target.value.replace(/\D/g, ''); // Allow only numbers
+    const val = e.target.value.replace(/\D/g, ''); // Numbers only
     setPhone(val);
     if (val.length > 10) {
       setPhoneError("Fault: You have to write 10 digits only");
@@ -140,97 +169,230 @@ function Login() {
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!phone) {
-      setPhoneError("Fault: You have to write 10 digits only");
-      return;
-    }
-    if (phone.length !== 10) {
-      setPhoneError("Fault: You have to write 10 digits only");
-      return;
-    }
-    if (!password) {
-      alert("Kripya apna password darj karein.");
-      return;
-    }
-    localStorage.setItem('kharido_user', JSON.stringify({ phone, village: isRegister ? village : 'Sadar Village' }));
+  const handleGoogleLogin = () => {
+    // Seamless Google sign-in option
+    const googleUser = {
+      phone: 'GoogleVerified',
+      name: 'Google User',
+      village: village || 'Sadar Village',
+      authMethod: 'google',
+      isLoggedIn: true
+    };
+    localStorage.setItem('kharido_user', JSON.stringify(googleUser));
     navigate('/');
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setFormError('');
+
+    // Phone validation
+    if (!phone || phone.length !== 10) {
+      setPhoneError("Fault: You have to write 10 digits only");
+      return;
+    }
+
+    if (!password) {
+      setFormError("Kripya apna password darj karein. (Please enter your password)");
+      return;
+    }
+
+    if (password.length < 4) {
+      setFormError("Password kam se kam 4 aksharon ka hona chahiye. (Password must be at least 4 characters)");
+      return;
+    }
+
+    // In Register mode: validate two password fields
+    if (isRegister) {
+      if (!rewritePassword) {
+        setFormError("Kripya password dobara likhein. (Please rewrite your password to confirm)");
+        return;
+      }
+      if (password !== rewritePassword) {
+        setFormError("Dono password ek jaise hone chahiye. (Passwords do not match)");
+        return;
+      }
+    }
+
+    // Store user session
+    localStorage.setItem('kharido_user', JSON.stringify({ 
+      phone, 
+      village: village.trim() || 'Sadar Village',
+      authMethod: 'credentials'
+    }));
+
+    navigate('/');
+  };
+
+  const isPasswordMatch = isRegister && password && rewritePassword && password === rewritePassword;
+  const isPasswordMismatch = isRegister && password && rewritePassword && password !== rewritePassword;
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 w-full relative z-20 bg-transparent overflow-x-hidden">
+    <div className="min-h-screen w-full relative z-20 bg-[#F5EFE0] overflow-y-auto">
+      {/* Background Particles & Bunting */}
       <Particles />
       <Bunting />
 
-      <div className="relative z-30 flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-24 w-full max-w-6xl mx-auto py-10">
+      {/* ============================================================== */}
+      {/* ALWAYS VISIBLE TOP BAR ("My Haat / मेरा हाट" Thing on Mobile) */}
+      {/* ============================================================== */}
+      <header className="fixed top-0 left-0 right-0 h-16 bg-[#FBF6EA]/95 backdrop-blur-md border-b-[3px] border-[#2B2118] flex items-center justify-between px-4 sm:px-6 z-50 shadow-[0_4px_0_rgba(43,33,24,0.08)]">
+        <div className="flex items-center gap-2">
+          <div className="w-9 h-9 rounded-xl bg-[#E3A83B] border-2 border-[#2B2118] flex items-center justify-center shadow-[1px_1px_0_#2B2118] shrink-0">
+            <Store size={20} className="text-[#2B2118]" />
+          </div>
+          <div className="flex flex-col">
+            <h1 className="text-xl sm:text-2xl text-[#A24A32] leading-none font-bold" style={{ fontFamily: "'Yatra One', cursive" }}>
+              KharidoSmart
+            </h1>
+            <span className="text-[11px] sm:text-xs text-[#5B4E3E] font-extrabold flex items-center gap-1 mt-0.5">
+              <span className="text-[#4B6142]">●</span> मेरा हाट • My Haat Portal
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <div className="bg-[#EADFC7] border-2 border-[#2B2118] px-2.5 py-1 rounded-xl shadow-[1px_1px_0_#2B2118] flex items-center gap-1.5 text-xs font-black text-[#2B2118]">
+            <MapPin size={13} className="text-[#A24A32]" />
+            <span className="truncate max-w-[110px] sm:max-w-xs">{village || 'Sadar Haat'}</span>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content Area */}
+      <div className="relative z-30 flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-16 w-full max-w-6xl mx-auto pt-24 pb-16 px-4 sm:px-6">
         
-        {/* Left Column: Hero & Info */}
+        {/* Left Column: Hero & Stall ("Where's the haat today?") */}
         <div className="flex flex-col items-center lg:items-start text-center lg:text-left flex-1 max-w-lg">
-          <div className="w-full max-w-[280px] lg:max-w-[360px] mx-auto lg:mx-0">
+          <div className="w-full max-w-[240px] sm:max-w-[280px] lg:max-w-[340px] mx-auto lg:mx-0">
             <StallSVG />
           </div>
-          <h1 className="text-5xl lg:text-7xl text-gray-800 leading-none mt-6 drop-shadow-sm" style={{ fontFamily: "'Yatra One', cursive" }}>
+          
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl text-[#2B2118] leading-none mt-4 drop-shadow-sm font-bold" style={{ fontFamily: "'Yatra One', cursive" }}>
             Where's the haat<br />today?
-          </h1>
-          <svg className="w-3/4 max-w-[200px] lg:max-w-[280px] h-4 mt-3 mb-6 mx-auto lg:mx-0" viewBox="0 0 200 16" preserveAspectRatio="none">
+          </h2>
+          
+          <div className="text-xs sm:text-sm font-black uppercase tracking-wider text-[#A24A32] mt-1 bg-[#EADFC7] px-3 py-1 rounded-md border border-[#2B2118] inline-block shadow-sm">
+            आज हाट कहाँ है? • My Haat Discovery
+          </div>
+
+          <svg className="w-3/4 max-w-[200px] lg:max-w-[280px] h-3.5 mt-2 mb-4 mx-auto lg:mx-0" viewBox="0 0 200 16" preserveAspectRatio="none">
             <path d="M2 11 C 40 2, 80 15, 120 7 S 180 2, 198 9" fill="none" stroke="#E3A83B" strokeWidth="4" strokeLinecap="round"/>
           </svg>
           
           {/* Taglines */}
-          <p className="text-[#E3A83B] text-2xl lg:text-3xl font-bold mb-3 drop-shadow-sm" style={{ textShadow: '0 0 12px rgba(227,168,59,0.3)' }}>
+          <p className="text-[#A24A32] text-xl sm:text-2xl font-black mb-2" style={{ textShadow: '0 0 12px rgba(227,168,59,0.3)' }}>
             अपने बाज़ार को जानिए, सही दाम पर खरीदिए।
           </p>
-          <p className="text-[#5B4E3E] text-base lg:text-lg font-medium mb-8 max-w-md mx-auto lg:mx-0">
-            Your personal market assistant. Compare prices, discover weekly haats, and never overpay again.
+          <p className="text-[#5B4E3E] text-sm sm:text-base font-semibold mb-6 max-w-md mx-auto lg:mx-0">
+            Compare real-time prices across 55+ rural mandis, discover weekly haats, and never overpay again.
           </p>
 
-          {/* Feature Bullets */}
-          <div className="bg-[#FBF6EA] border-[3px] border-[#2B2118] rounded-xl p-5 shadow-[6px_6px_0_#2B2118] w-full">
-            <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <span className="text-[#A24A32] mt-0.5 text-lg">●</span>
-                <div className="text-base text-[#2B2118] leading-tight">
-                  <span className="font-black">Smart Comparison</span> – instantly find the cheapest mandi.
+          {/* Feature Highlights */}
+          <div className="bg-[#FBF6EA] border-[3px] border-[#2B2118] rounded-2xl p-4 sm:p-5 shadow-[5px_5px_0_#2B2118] w-full text-left">
+            <ul className="space-y-3">
+              <li className="flex items-start gap-2.5">
+                <span className="text-[#A24A32] font-black text-lg leading-none mt-0.5">✓</span>
+                <div className="text-xs sm:text-sm text-[#2B2118] leading-snug">
+                  <span className="font-black">Smart Comparison:</span> Instantly find the cheapest mandi including travel fare.
                 </div>
               </li>
-              <li className="flex items-start gap-3">
-                <span className="text-[#E3A83B] mt-0.5 text-lg">●</span>
-                <div className="text-base text-[#2B2118] leading-tight">
-                  <span className="font-black">Live Availability</span> – know if a market is open before traveling.
+              <li className="flex items-start gap-2.5">
+                <span className="text-[#E3A83B] font-black text-lg leading-none mt-0.5">✓</span>
+                <div className="text-xs sm:text-sm text-[#2B2118] leading-snug">
+                  <span className="font-black">Live Availability:</span> Know if weekly haats are open before traveling.
                 </div>
               </li>
-              <li className="flex items-start gap-3">
-                <span className="text-[#4B6142] mt-0.5 text-lg">●</span>
-                <div className="text-base text-[#2B2118] leading-tight">
-                  <span className="font-black">Bazaar Saathi</span> – AI chat to answer all your mandi queries.
+              <li className="flex items-start gap-2.5">
+                <span className="text-[#4B6142] font-black text-lg leading-none mt-0.5">✓</span>
+                <div className="text-xs sm:text-sm text-[#2B2118] leading-snug">
+                  <span className="font-black">Bazaar Saathi AI:</span> Bilingual voice & text chatbot for village rates.
                 </div>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Right Column: Ticket Form */}
-        <div className="w-full max-w-[380px] bg-[#FBF6EA] rounded-md shadow-[0_12px_36px_rgba(43,33,24,0.25)] p-8 lg:p-10 pt-12 relative border-[2px] border-[#D9C9A3] lg:mt-0 mt-8 shrink-0">
-          {/* Hole Punch & Tape */}
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-[#F2E9D8] shadow-inner" style={{ boxShadow: 'inset 0 3px 6px rgba(0,0,0,0.12)' }}></div>
-          <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-20 h-6 bg-[#EADFC7] opacity-70 transform -rotate-3 rounded-sm shadow-sm"></div>
+        {/* Right Column: Ticket Form (Create Account / Login) */}
+        <div className="w-full max-w-[420px] bg-[#FBF6EA] rounded-2xl shadow-[6px_6px_0_#2B2118] p-6 sm:p-8 pt-8 relative border-[3px] border-[#2B2118] shrink-0">
+          
+          {/* Decorative Tape */}
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-5 bg-[#EADFC7] border border-[#2B2118] opacity-90 transform -rotate-2 rounded-sm shadow-sm"></div>
 
-          <div className="text-center space-y-2 mb-8">
-            <h2 className="text-4xl text-gray-800" style={{ fontFamily: "'Yatra One', cursive" }}>
-              {isRegister ? 'Join the bazaar' : 'Enter the bazaar'}
-            </h2>
-            <p className="text-[#5B4E3E] text-base font-medium">
-              {isRegister ? 'Create a new account.' : 'Log in with your credentials.'}
+          {/* Mode Switcher Tabs: Create Account (First) vs Log In */}
+          <div className="grid grid-cols-2 gap-2 mb-6 bg-[#EADFC7] p-1.5 rounded-xl border-2 border-[#2B2118]">
+            <button
+              type="button"
+              onClick={() => { setIsRegister(true); setFormError(''); }}
+              className={`py-2 px-3 rounded-lg font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all ${
+                isRegister 
+                  ? 'bg-[#2B2118] text-[#FBF6EA] shadow-[2px_2px_0_#A24A32]' 
+                  : 'text-[#2B2118] hover:bg-white/50'
+              }`}
+            >
+              <UserPlus size={16} /> Create Account
+            </button>
+            <button
+              type="button"
+              onClick={() => { setIsRegister(false); setFormError(''); }}
+              className={`py-2 px-3 rounded-lg font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all ${
+                !isRegister 
+                  ? 'bg-[#2B2118] text-[#FBF6EA] shadow-[2px_2px_0_#A24A32]' 
+                  : 'text-[#2B2118] hover:bg-white/50'
+              }`}
+            >
+              <LogIn size={16} /> Log In
+            </button>
+          </div>
+
+          <div className="text-center space-y-1 mb-5">
+            <h3 className="text-2xl sm:text-3xl text-[#2B2118] font-bold" style={{ fontFamily: "'Yatra One', cursive" }}>
+              {isRegister ? 'Join the Bazaar' : 'Enter the Bazaar'}
+            </h3>
+            <p className="text-[#5B4E3E] text-xs sm:text-sm font-semibold">
+              {isRegister 
+                ? 'Pehle apna naya account banayein (Create your account first):' 
+                : 'Apne mobile number se login karein (Log in with credentials):'}
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-1.5">
+          {/* Option: Login from Google */}
+          <div className="mb-4">
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              className="w-full bg-white hover:bg-gray-50 text-[#2B2118] font-black py-3 px-4 rounded-xl border-2 border-[#2B2118] shadow-[3px_3px_0_#2B2118] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all flex items-center justify-center gap-2.5 text-xs sm:text-sm"
+            >
+              {/* Official Google G Logo SVG */}
+              <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span>Continue with Google (गूगल से लॉगिन)</span>
+            </button>
+
+            <div className="flex items-center my-4">
+              <div className="flex-1 border-t-2 border-[#D9C9A3]"></div>
+              <span className="px-3 text-[11px] font-black uppercase tracking-wider text-[#7D6B56] bg-[#FBF6EA]">
+                OR WITH PHONE
+              </span>
+              <div className="flex-1 border-t-2 border-[#D9C9A3]"></div>
+            </div>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            
+            {/* Phone Number Field (with 10-digit fault rule) */}
+            <div className="space-y-1">
               <div className="flex justify-between items-center">
-                <label className="text-[#5B4E3E] text-xs font-bold ml-1 uppercase tracking-wider">Phone Number</label>
+                <label className="text-[#5B4E3E] text-xs font-black uppercase tracking-wider">
+                  Mobile Number (मोबाइल नंबर)
+                </label>
                 {phone.length > 0 && (
-                  <span className={`text-[11px] font-bold ${phone.length > 10 ? 'text-red-600' : phone.length === 10 ? 'text-green-700' : 'text-[#5B4E3E]'}`}>
+                  <span className={`text-[11px] font-bold ${phone.length > 10 ? 'text-red-600 font-black' : phone.length === 10 ? 'text-green-700 font-black' : 'text-[#5B4E3E]'}`}>
                     {phone.length}/10 {phone.length > 10 && '⚠️ Exceeded!'}
                   </span>
                 )}
@@ -239,66 +401,189 @@ function Login() {
                 type="tel"
                 value={phone}
                 onChange={handlePhoneChange}
-                placeholder="e.g. 9876543210"
-                className={`w-full px-4 py-3.5 bg-transparent border-2 rounded-lg focus:outline-none text-gray-800 font-bold placeholder-[#C9BBA0] transition-colors text-lg ${
+                placeholder="10 digit phone number (e.g. 9876543210)"
+                className={`w-full px-3.5 py-3 bg-white border-2 rounded-xl focus:outline-none text-[#2B2118] font-bold placeholder-[#A69780] text-base shadow-[2px_2px_0_#2B2118] transition-colors ${
                   phoneError || phone.length > 10
                     ? 'border-red-500 bg-red-50/50 focus:border-red-600'
-                    : 'border-[#D9C9A3] focus:border-[#A24A32]'
+                    : 'border-[#2B2118] focus:border-[#E3A83B]'
                 }`}
               />
               {phoneError && (
-                <p className="text-red-600 text-xs font-black mt-1 flex items-center gap-1.5 bg-red-100/90 p-2 rounded-md border border-red-300 shadow-sm animate-pulse">
+                <p className="text-red-600 text-xs font-black mt-1 flex items-center gap-1.5 bg-red-100 p-2 rounded-lg border border-red-300 shadow-sm animate-pulse">
                   <span>⚠️</span>
                   <span>{phoneError}</span>
                 </p>
               )}
             </div>
-            
-            <div className="space-y-1.5">
-              <label className="text-[#5B4E3E] text-xs font-bold ml-1 uppercase tracking-wider">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-4 py-3.5 bg-transparent border-2 border-[#D9C9A3] rounded-lg focus:outline-none focus:border-[#A24A32] text-gray-800 font-bold placeholder-[#C9BBA0] transition-colors text-lg"
-              />
-            </div>
 
+            {/* Village Selector (Shown in Create Account) */}
             {isRegister && (
-              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-1.5">
-                <label className="text-[#5B4E3E] text-xs font-bold ml-1 uppercase tracking-wider">Village Name</label>
+              <div className="space-y-1">
+                <label className="text-[#5B4E3E] text-xs font-black uppercase tracking-wider">
+                  Village Name (गाँव का नाम)
+                </label>
                 <input
                   type="text"
                   value={village}
                   onChange={(e) => setVillage(e.target.value)}
                   placeholder="e.g. Sadar Village"
-                  className="w-full px-4 py-3.5 bg-transparent border-2 border-[#D9C9A3] rounded-lg focus:outline-none focus:border-[#A24A32] text-gray-800 font-bold placeholder-[#C9BBA0] transition-colors text-lg"
+                  className="w-full px-3.5 py-3 bg-white border-2 border-[#2B2118] rounded-xl focus:outline-none focus:border-[#E3A83B] text-[#2B2118] font-bold placeholder-[#A69780] text-base shadow-[2px_2px_0_#2B2118]"
                 />
-              </motion.div>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {POPULAR_VILLAGES.map((v, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setVillage(v)}
+                      className="text-[10px] font-bold bg-[#EADFC7] hover:bg-[#dfd1b5] text-[#2B2118] px-2 py-0.5 rounded border border-[#2B2118]/40"
+                    >
+                      +{v}
+                    </button>
+                  ))}
+                </div>
+              </div>
             )}
 
+            {/* TWO PASSWORD COLUMNS IN CREATE ACCOUNT */}
+            {isRegister ? (
+              <div className="space-y-3 pt-1">
+                
+                {/* Column 1: New Password */}
+                <div className="space-y-1">
+                  <label className="text-[#5B4E3E] text-xs font-black uppercase tracking-wider flex items-center gap-1">
+                    <ShieldCheck size={14} className="text-[#A24A32]" />
+                    1. New Password (नया पासवर्ड)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter new password..."
+                      className="w-full px-3.5 py-3 pr-10 bg-white border-2 border-[#2B2118] rounded-xl focus:outline-none focus:border-[#E3A83B] text-[#2B2118] font-bold placeholder-[#A69780] text-base shadow-[2px_2px_0_#2B2118]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(prev => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5B4E3E] hover:text-[#2B2118]"
+                      title={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Column 2: Rewrite / Confirm Password */}
+                <div className="space-y-1">
+                  <label className="text-[#5B4E3E] text-xs font-black uppercase tracking-wider flex items-center gap-1">
+                    <ShieldCheck size={14} className="text-[#4B6142]" />
+                    2. Rewrite Password (पासवर्ड दोबारा लिखें)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showRewritePassword ? 'text' : 'password'}
+                      value={rewritePassword}
+                      onChange={(e) => setRewritePassword(e.target.value)}
+                      placeholder="Rewrite password to confirm..."
+                      className={`w-full px-3.5 py-3 pr-10 bg-white border-2 rounded-xl focus:outline-none text-[#2B2118] font-bold placeholder-[#A69780] text-base shadow-[2px_2px_0_#2B2118] transition-colors ${
+                        isPasswordMismatch 
+                          ? 'border-red-500 bg-red-50/50' 
+                          : isPasswordMatch 
+                          ? 'border-green-600 bg-green-50/30' 
+                          : 'border-[#2B2118] focus:border-[#E3A83B]'
+                      }`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowRewritePassword(prev => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5B4E3E] hover:text-[#2B2118]"
+                      title={showRewritePassword ? "Hide password" : "Show password"}
+                    >
+                      {showRewritePassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+
+                  {/* Real-time Match Indicator */}
+                  {isPasswordMatch && (
+                    <p className="text-green-700 text-xs font-black flex items-center gap-1 mt-1 bg-green-100 p-1.5 rounded-lg border border-green-300">
+                      <CheckCircle2 size={14} /> Passwords match (दोनों पासवर्ड एक जैसे हैं)
+                    </p>
+                  )}
+                  {isPasswordMismatch && (
+                    <p className="text-red-600 text-xs font-black flex items-center gap-1 mt-1 bg-red-100 p-1.5 rounded-lg border border-red-300">
+                      <AlertTriangle size={14} /> Passwords do not match (दोनों पासवर्ड अलग हैं)
+                    </p>
+                  )}
+                </div>
+
+              </div>
+            ) : (
+              /* Single Password in Log In mode */
+              <div className="space-y-1">
+                <label className="text-[#5B4E3E] text-xs font-black uppercase tracking-wider">
+                  Password (पासवर्ड)
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password..."
+                    className="w-full px-3.5 py-3 pr-10 bg-white border-2 border-[#2B2118] rounded-xl focus:outline-none focus:border-[#E3A83B] text-[#2B2118] font-bold placeholder-[#A69780] text-base shadow-[2px_2px_0_#2B2118]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(prev => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5B4E3E] hover:text-[#2B2118]"
+                    title={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* General Form Error Notice */}
+            {formError && (
+              <div className="bg-red-100 border-2 border-red-500 text-red-700 p-2.5 rounded-xl text-xs font-black flex items-center gap-2">
+                <AlertTriangle size={16} className="shrink-0" />
+                <span>{formError}</span>
+              </div>
+            )}
+
+            {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-[#A24A32] hover:bg-[#8e3f29] text-[#FBF6EA] font-black py-4 rounded-xl shadow-lg active:scale-[0.98] transition-all text-xl mt-4 flex items-center justify-center gap-2 border-2 border-[#2B2118]"
+              className="w-full bg-[#A24A32] hover:bg-[#8e3f29] text-[#FBF6EA] font-black py-4 rounded-xl border-[3px] border-[#2B2118] shadow-[4px_4px_0_#2B2118] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all text-lg mt-3 flex items-center justify-center gap-2"
             >
-              {isRegister ? 'Register' : 'Log in'} →
+              {isRegister ? (
+                <>
+                  <UserPlus size={20} strokeWidth={2.5} />
+                  <span>Create Account & Enter Bazaar</span>
+                </>
+              ) : (
+                <>
+                  <LogIn size={20} strokeWidth={2.5} />
+                  <span>Log In to Bazaar</span>
+                </>
+              )}
             </button>
           </form>
           
-          <p className="text-center text-[#A24A32] text-base font-bold mt-8">
-            {isRegister ? 'Already have an account? ' : 'New here? '}
-            <span 
-              className="underline cursor-pointer hover:text-[#8e3f29]"
-              onClick={() => setIsRegister(!isRegister)}
+          {/* Bottom Switcher Link */}
+          <div className="text-center text-[#5B4E3E] text-xs sm:text-sm font-bold mt-5 pt-3 border-t-2 border-[#D9C9A3]/60">
+            {isRegister ? 'Already have an account? (पहले से खाता है?) ' : 'New to KharidoSmart? (नया खाता बनाना है?) '}
+            <button 
+              type="button"
+              className="text-[#A24A32] font-black underline hover:text-[#8e3f29] ml-1"
+              onClick={() => { setIsRegister(!isRegister); setFormError(''); }}
             >
-              {isRegister ? 'Log in' : 'Create an account'}
-            </span>
-          </p>
+              {isRegister ? 'Log In here' : 'Create an Account'}
+            </button>
+          </div>
+
         </div>
       </div>
     </div>
   );
 }
-
-export default Login;

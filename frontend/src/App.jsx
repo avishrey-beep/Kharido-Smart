@@ -21,7 +21,7 @@ function AppLayout() {
   }, [navigate]);
 
   return (
-    <div className="flex flex-col h-full w-full relative">
+    <div className="flex flex-col h-screen w-full relative overflow-hidden">
       <TopBar />
       
       <main className="flex-1 overflow-y-auto pt-20 pb-28 h-full relative z-0">
@@ -41,7 +41,7 @@ function AppLayout() {
 function App() {
   return (
     <Router>
-      <div className="w-full h-screen haatpata-bg overflow-hidden relative flex flex-col">
+      <div className="w-full min-h-screen haatpata-bg relative flex flex-col">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/*" element={<AppLayout />} />
